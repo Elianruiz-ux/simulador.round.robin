@@ -5,6 +5,7 @@ function App() {
   const [processes, setProcesses] = useState([]);
   const [quantum, setQuantum] = useState("1");
   const [executionLog, setExecutionLog] = useState([]);
+  const [isRunning, setIsRunning] = useState(false);
 
   const handleQuantumChange = (event) => {
     const value = parseFloat(event.target.value);
@@ -26,7 +27,7 @@ function App() {
     setProcesses((prevProcesses) => [
       ...prevProcesses,
       {
-        name: `Process ${prevProcesses.length + 1}`,
+        name: `Proceso ${prevProcesses.length + 1}`,
         burstTime: 0,
         remainingTime: 0,
       },
@@ -34,19 +35,20 @@ function App() {
   };
 
   const runRoundRobin = () => {
-    console.log("entre");
-    console.log(processes);
+    setIsRunning(true); // Indicar que se está ejecutando el algoritmo
     let processesCopy = [...processes];
     let currentTime = 0;
     let totalWaitingTime = 0;
     let totalTurnaroundTime = 0;
     let log = [];
 
-    while (processesCopy.length > 0) {
-      console.log("entre");
+    const interval = setInterval(() => {
+      let hasRemainingProcesses = false; // Variable para controlar si hay procesos restantes
+
       for (let i = 0; i < processesCopy.length; i++) {
         const process = processesCopy[i];
         if (process.remainingTime > 0) {
+          hasRemainingProcesses = true; // Hay procesos restantes
           const timeSlice = Math.min(quantum, process.remainingTime);
           process.remainingTime -= timeSlice;
           currentTime += timeSlice;
@@ -72,18 +74,21 @@ function App() {
           }
         }
       }
-    }
 
-    const averageWaitingTime = totalWaitingTime / processes.length;
-    const averageTurnaroundTime = totalTurnaroundTime / processes.length;
+      setExecutionLog(log);
 
-    setExecutionLog(log);
+      if (!hasRemainingProcesses) {
+        clearInterval(interval); // Detener el intervalo si no hay más procesos restantes
+        setIsRunning(false); // Indicar que se ha detenido la ejecución
+      }
+    }, 1000); // Intervalo de 1 segundo
   };
 
   const borrar = () => {
     setExecutionLog([]);
     setProcesses([]);
     setQuantum("1");
+    setIsRunning(false);
   };
 
   return (
@@ -91,7 +96,12 @@ function App() {
       <h2>Simulador Round Robin</h2>
       <label>
         Quantum:
-        <input type="number" value={quantum} onChange={handleQuantumChange} />
+        <input
+          type="number"
+          disabled={isRunning === true}
+          value={quantum}
+          onChange={handleQuantumChange}
+        />
       </label>
       <br />
       <h3>Introducir Procesos</h3>
@@ -101,6 +111,7 @@ function App() {
             <label>
               Proceso {index + 1} Tiempo de Ráfaga:
               <input
+                disabled={isRunning === true}
                 type="number"
                 value={process.burstTime || ""}
                 onChange={(e) => handleProcessChange(e, index)}
@@ -110,8 +121,12 @@ function App() {
         ))}
       </form>
       <br />
-      <button onClick={addProcess}>Agregar Proceso</button>
-      <button onClick={runRoundRobin}>Ejecutar Round Robin</button>
+      <button onClick={addProcess} disabled={isRunning === true}>
+        Agregar Proceso
+      </button>
+      <button onClick={runRoundRobin} disabled={isRunning === true}>
+        Ejecutar Round Robin
+      </button>
       <button onClick={borrar}>Borrar</button>
       <br />
       <h3>Registro de Ejecución</h3>
