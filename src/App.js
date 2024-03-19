@@ -102,13 +102,34 @@ function App() {
         {processes.map((process, index) => (
           <div key={index}>
             <label>
-              Proceso {index + 1} Tiempo de Ráfaga:
-              <input
-                disabled={isRunning === true}
-                type="number"
-                value={process.burstTime || ""}
-                onChange={(e) => handleProcessChange(e, index)}
-              />
+              Proceso {index + 1}{" "}
+              <div>
+                Tiempo de Ráfaga de CPU:
+                <input
+                  disabled={isRunning === true}
+                  type="number"
+                  value={process.burstTime || ""}
+                  onChange={(e) => handleProcessChange(e, index)}
+                />
+              </div>
+              <div>
+                Prioridad:
+                <input
+                  disabled={isRunning === true}
+                  type="number"
+                  value={process.burstTime || ""}
+                  onChange={(e) => handleProcessChange(e, index)}
+                />
+              </div>
+              <div>
+                Entradas/Salidas:
+                <input
+                  disabled={isRunning === true}
+                  type="number"
+                  value={process.burstTime || ""}
+                  onChange={(e) => handleProcessChange(e, index)}
+                />
+              </div>
             </label>
           </div>
         ))}
