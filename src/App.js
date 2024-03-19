@@ -43,44 +43,37 @@ function App() {
     let log = [];
 
     const interval = setInterval(() => {
-      let hasRemainingProcesses = false; // Variable para controlar si hay procesos restantes
+      if (processesCopy.length === 0) {
+        // Detener el intervalo si no hay más procesos
+        clearInterval(interval);
+        setIsRunning(false); // Indicar que se ha detenido la ejecución
+        return;
+      }
 
-      for (let i = 0; i < processesCopy.length; i++) {
-        const process = processesCopy[i];
-        if (process.remainingTime > 0) {
-          hasRemainingProcesses = true; // Hay procesos restantes
-          const timeSlice = Math.min(quantum, process.remainingTime);
-          process.remainingTime -= timeSlice;
-          currentTime += timeSlice;
-          log.push({
-            process: process.name,
-            startTime: currentTime - timeSlice,
-            endTime: currentTime,
-            waitingTime: Math.max(
-              currentTime - timeSlice - process.burstTime,
-              0
-            ),
-            turnaroundTime: currentTime - process.burstTime,
-          });
+      const process = processesCopy[0]; // Obtener el próximo proceso a ejecutar
+      if (process.remainingTime > 0) {
+        const timeSlice = Math.min(quantum, process.remainingTime);
+        process.remainingTime -= timeSlice;
+        currentTime += timeSlice;
+        log.push({
+          process: process.name,
+          startTime: currentTime - timeSlice,
+          endTime: currentTime,
+          waitingTime: Math.max(currentTime - timeSlice - process.burstTime, 0),
+          turnaroundTime: currentTime - process.burstTime,
+        });
 
-          if (process.remainingTime === 0) {
-            totalWaitingTime += Math.max(
-              currentTime - process.burstTime - timeSlice,
-              0
-            );
-            totalTurnaroundTime += currentTime - process.burstTime;
-            processesCopy.splice(i, 1);
-            i--;
-          }
+        if (process.remainingTime === 0) {
+          totalWaitingTime += Math.max(
+            currentTime - process.burstTime - timeSlice,
+            0
+          );
+          totalTurnaroundTime += currentTime - process.burstTime;
+          processesCopy.shift(); // Eliminar el proceso ejecutado de la lista
         }
       }
 
-      setExecutionLog(log);
-
-      if (!hasRemainingProcesses) {
-        clearInterval(interval); // Detener el intervalo si no hay más procesos restantes
-        setIsRunning(false); // Indicar que se ha detenido la ejecución
-      }
+      setExecutionLog(log.slice()); // Actualizar la tabla con el nuevo registro
     }, 1000); // Intervalo de 1 segundo
   };
 
