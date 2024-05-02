@@ -8,6 +8,7 @@ function App() {
   const [quantum, setQuantum] = useState("1");
   const [executionLog, setExecutionLog] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [es, setEs] = useState("");
 
   const handleQuantumChange = (event) => {
     const value = parseFloat(event.target.value);
@@ -23,6 +24,10 @@ function App() {
       remainingTime: parseInt(value),
     };
     setProcesses(updatedProcesses);
+  };
+
+  const handleEntradaSelidas = (event) => {
+    const { value } = event.target;
   };
 
   const addProcess = () => {
@@ -158,55 +163,67 @@ function App() {
             </>
           </div>
         )}
-        <div>
+        <div className="tableContainer">
           <h3>Registro de Ejecución</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Proceso</th>
-                <th>Tiempo de Inicio</th>
-                <th>Tiempo de Finalización</th>
-                <th>Tiempo de Espera</th>
-                <th>Tiempo de Retorno</th>
-              </tr>
-            </thead>
-            <tbody>
-              {executionLog.map((log, index) => (
-                <tr key={index}>
-                  <td>{log.process}</td>
-                  <td>{log.startTime}</td>
-                  <td>{log.endTime}</td>
-                  <td>{log.waitingTime}</td>
-                  <td>{log.turnaroundTime}</td>
+          <div className="table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Proceso</th>
+                  <th>Tiempo de Inicio</th>
+                  <th>Tiempo de Finalización</th>
+                  <th>Tiempo de Espera</th>
+                  <th>Tiempo de Retorno</th>
                 </tr>
-              ))}
-              <tr>
-                <td colSpan="3"></td>
-                <td>Tiempo de Espera Promedio:</td>
-                <td>
-                  {executionLog.length > 0 &&
-                    executionLog.reduce(
-                      (acc, curr) => acc + curr.waitingTime,
-                      0
-                    ) / executionLog.length}
-                </td>
-              </tr>
-              <tr>
-                <td colSpan="3"></td>
-                <td>Tiempo de Retorno Promedio:</td>
-                <td>
-                  {executionLog.length > 0 &&
-                    executionLog.reduce(
-                      (acc, curr) => acc + curr.turnaroundTime,
-                      0
-                    ) / executionLog.length}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {executionLog.map((log, index) => (
+                  <tr key={index}>
+                    <td>{log.process}</td>
+                    <td>{log.startTime}</td>
+                    <td>{log.endTime}</td>
+                    <td>{log.waitingTime}</td>
+                    <td>{log.turnaroundTime}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="tiempos">
+            <div>
+              <p>Tiempo de espera promedio:</p>
+              <p className="promedio">
+                {executionLog.length > 0 &&
+                  executionLog.reduce(
+                    (acc, curr) => acc + curr.waitingTime,
+                    0
+                  ) / executionLog.length}
+              </p>
+            </div>
+            <div>
+              <p>Tiempo de retorno promedio:</p>
+              <p className="promedio">
+                {executionLog.length > 0 &&
+                  executionLog.reduce(
+                    (acc, curr) => acc + curr.turnaroundTime,
+                    0
+                  ) / executionLog.length}
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div>gantt</div>
+        <div className="containerGant">
+          <h3>Diagrama de Gantt</h3>
+          <div className="gant">
+            <div>
+              <p className="asigno">10</p>
+              <p>p1</p>
+              <p className="inicio">0</p>
+              <p className="fin">10</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

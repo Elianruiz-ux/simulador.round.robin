@@ -1,183 +1,342 @@
 .main {
+  width: 100%;
+  height: 100%;
+
+  & .mainContainer {
+    padding: 10px;
+  }
+
+  & .actions {
     width: 100%;
-    height: 100%;   
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    justify-items: center;
+    align-items: center;
+    padding: 0px;
 
-    & .mainContainer {
-        padding: 10px;
+    & .buttons {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+  }
+
+  & .round {
+    background-color: green;
+    color: white;
+    border-color: white;
+
+    &:hover {
+      background-color: rgba(0, 128, 0, 0.806);
+      color: white;
+      border-color: white;
+    }
+  }
+
+  & .delete {
+    background-color: red;
+    color: white;
+    border-color: white;
+
+    &:hover {
+      background-color: rgba(255, 0, 0, 0.685);
+      color: white;
+      border-color: white;
+    }
+  }
+
+  & .header {
+    width: 100%;
+    font-size: 1.4rem;
+    text-align: center;
+    padding: 20px 10px;
+    background-color: #ffffff90;
+    font-weight: 200;
+    /* text-decoration: underline; */
+    color: #000000b0;
+    box-shadow: 0px 0px 6px #0000008f;
+    margin-bottom: 30px;
+  }
+
+  & .quantum {
+    width: 100%;
+    padding: 20px 15px;
+  }
+
+  /*button*/
+
+  & button {
+    width: auto;
+    appearance: none;
+    outline: none;
+    border: 1px solid #00000061;
+    background-color: #d9d9d990;
+    border-radius: 25px;
+    padding: 5px 15px;
+    color: #000000ac;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+    gap: 5px;
+
+    & svg {
+      font-size: 20px;
     }
 
+    &:hover {
+      cursor: pointer;
+      background-color: #d9d9d9;
+    }
+  }
 
-    & .actions {
-        width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        justify-items: center;
-        align-items: center;
-        padding: 0px;
+  /*inputs*/
+  & .input {
+    width: 250px;
+    position: relative;
+    padding: 10px 0;
 
-        & .buttons {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
+    & label {
+      font-size: 13px;
+      width: auto;
+      overflow: hidden;
+      background-color: white;
+      border: 2px solid #d9d9d9;
+      padding: 2px 10px;
+      border-radius: 50px 50px 50px 0px;
+      position: absolute;
+      top: -5px;
     }
 
-    & .round {
-        background-color: green;
-        color: white;
-        border-color: white;
+    & input {
+      /* position: relative; */
+      /* transform: translateY(-10px); */
+      width: 100%;
+      appearance: none;
+      border: 2px solid #d9d9d9;
+      background-color: white;
+      padding: 10px;
+      border-radius: 0px 50px 50px 0px;
 
-        &:hover{
-            background-color: rgba(0, 128, 0, 0.806);
-            color: white;
-            border-color: white;
-        }
-    }
-
-    & .delete {
-        background-color: red;
-        color: white;
-        border-color: white;
-
-        &:hover{
-            background-color: rgba(255, 0, 0, 0.685);
-            color: white;
-            border-color: white;
-        }
-    }
-
-
-
-    
-    & .header{
-        width: 100%;
-        font-size: 1.4rem;
-        text-align: center;
-        padding: 20px 10px;
-        background-color: #ffffff90;
-        font-weight: 200;
-        /* text-decoration: underline; */
-        color:#000000b0;
-        box-shadow: 0px 0px 6px #0000008f;
-        margin-bottom: 30px;
-    }
-
-    & .quantum {
-        width: 100%;
-        padding: 20px 15px;
-    }
-
-    /*button*/
-
-    & button {
-        width: auto;
-        appearance: none;
+      &:focus {
         outline: none;
-        border: 1px solid #00000061;
+      }
+    }
+  }
+
+  & .form {
+    width: 100%;
+    padding: 10px;
+
+    border: 1px solid #d9d9d9;
+
+    & .headerForm {
+      width: 100%;
+      text-align: center;
+      color: #000000ac;
+      font-weight: 100;
+      border-bottom: 1px solid #d9d9d9;
+      padding-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    & form {
+      padding: 10px;
+      display: flex;
+      width: 100%;
+      overflow: auto;
+      max-height: 400px;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    & .process {
+      padding: 5px;
+      width: 260px;
+      overflow: hidden;
+      border: 1px solid #00000056;
+
+      & p {
+        font-size: 14px;
+        font-weight: 600;
+        text-align: center;
+        padding: 5px;
         background-color: #d9d9d990;
-        border-radius: 25px;
-        padding: 5px 15px;
-        color: #000000ac;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        justify-items: center;
-        gap: 5px;
+        margin-bottom: 10px;
+        color: #0000008f;
+      }
+    }
+  }
 
-        & svg{
-            font-size: 20px;
-        }
-        
-        &:hover{
-            cursor: pointer;    
-            background-color: #d9d9d9;
-        }
+  & .tableContainer {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #00000056;
+
+    & h3 {
+      width: 100%;
+      text-align: center;
+      color: #000000ac;
+      font-weight: 100;
+      padding: 0 0 10px 0;
+      font-size: 1rem;
+      border-bottom: 1px solid #00000056;
+      margin-bottom: 10px;
     }
 
-    /*inputs*/
-    & .input {
-        width: 250px;
-        position: relative;
-        padding: 10px 0;
-            
-        & label {
-            font-size: 13px;
-            width:  auto;
-            overflow: hidden;
-            background-color: white;
-            border: 1px solid #d9d9d9;
-            padding: 2px 10px;
-            border-radius: 50px 50px 50px 0px;
-            position: absolute;
-            top: -5px;
+    & .table {
+      width: 100%;
+      overflow: auto;
+      max-height: 300px;
+      border: 1px solid #00000056;
 
-        }
+      --ancho: 150px;
 
-        & input {
-            /* position: relative; */
-            /* transform: translateY(-10px); */
-            width: 100%;
-            appearance: none;
-            border: 1px solid #d9d9d9;
-            background-color: white;
-            padding: 10px;
-            border-radius: 0px 50px 50px 0px;
-
-
-
-            
-            &:focus{
-                outline: none;
-            }
-        }
-    }
-
-    & .form{
+      & table {
         width: 100%;
-        padding: 10px;
-        
-        border: 1px solid #d9d9d9;
+        height: 100%;
+        text-align: center;
+        background-color: #fff;
+        border-collapse: collapse;
+        border: none;
+        border-radius: 10px;
+        position: relative;
+        z-index: 1 !important;
 
-        & .headerForm {
-            width: 100%;
-            text-align: center;
-            color: #000000ac;
-            font-weight: 100;
-            border-bottom: 1px solid #d9d9d9;
-            padding-bottom: 10px;
-            font-size: 1rem;
-        }
+        & thead {
+          /* text-transform: capitalize; */
+          position: sticky;
+          top: 0;
+          z-index: 2;
 
+          & tr {
+            & th {
+              padding: 10px 0;
+              word-wrap: break-word;
+              background-color: #fff;
+              font-weight: 600;
+              border-bottom: 1px solid #00000056;
+              font-size: 14px;
+              text-align: center;
+              background-color: #d9d9d990;
+              color: #0000008f;
 
-        & form {
-            padding: 10px;
-            display: flex;
-            width: 100%;
-            overflow: auto;
-            max-height: 400px;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        & .process {
-            padding: 5px;
-            width: 260px;
-            overflow: hidden;
-            border: 1px solid #00000056;
-
-            & p {
-                font-size: 14px;
-                font-weight: 600;
-                text-align: center;
-                padding: 5px;
-                background-color: #d9d9d990;
-                margin-bottom: 10px;
-                color: #0000008f;
+              min-width: var(--ancho) !important;
+              max-width: var(--ancho) !important;
             }
+          }
         }
+        & tbody {
+          & tr {
+            & .cantidad {
+              display: flex !important;
+              flex-wrap: wrap !important;
+              gap: 20px !important;
+              justify-content: center;
+              justify-items: center;
+              align-items: center;
+            }
+            & td {
+              padding: 10px 0;
+              font-size: 0.8rem;
+              word-wrap: break-word;
+              min-width: var(--ancho) !important;
+              max-width: var(--ancho) !important;
 
+              &::first-letter {
+                text-transform: uppercase;
+              }
+            }
 
+            &:nth-of-type(even) {
+              background-color: #d9d9d990;
+            }
+          }
+        }
+      }
     }
 
+    & .tiempos {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      margin: 5px 0;
+      gap: 5px;
+
+      & div {
+        width: auto;
+        padding: 10px;
+        border: 1px solid #00000056;
+        display: flex;
+        gap: 10px;
+
+        & p {
+          font-size: 0.9rem;
+          font-weight: 600;
+        }
+
+        & .promedio {
+          font-weight: 100;
+        }
+      }
+    }
+  }
+  & .containerGant {
+    width: 100%;
+    padding: 20px;
+    border: 1px solid #00000056;
+
+    & h3 {
+      width: 100%;
+      text-align: center;
+      color: #000000ac;
+      font-weight: 100;
+      padding: 0 0 10px 0;
+      font-size: 1rem;
+      border-bottom: 1px solid #00000056;
+      margin-bottom: 10px;
+    }
+
+    & .gant {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      padding: 10px;
+      margin-top: 30px;
+
+      & div {
+        position: relative;
+        width: 75px;
+        height: 50px;
+        border: 1px solid #000000;
+        display: grid;
+        place-content: center;
+        text-transform: uppercase;
+
+        & .asigno,
+        & .inicio,
+        & .fin {
+          position: absolute;
+        }
+
+        & .asigno {
+          top: -20px;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        & .inicio {
+          bottom: -20px;
+          left: -5px;
+        }
+
+        & .fin {
+          bottom: -20px;
+          right: -10px;
+        }
+      }
+    }
+  }
 }
