@@ -4,91 +4,76 @@ import { CiPlay1, CiTrash } from "react-icons/ci";
 import { IoIosAdd } from "react-icons/io";
 
 function App() {
-  const [processes, setProcesses] = useState([]);
-  const [quantum, setQuantum] = useState("1");
-  const [executionLog, setExecutionLog] = useState([]);
-  const [isRunning, setIsRunning] = useState(false);
-  const [es, setEs] = useState("");
+  const [numProcesos, setNumProcesos] = useState(0);
+  const [procesos, setProcesos] = useState([]);
+  const [quantum, setQuantum] = useState(0);
+  const [intercambio, setIntercambio] = useState(0);
+  const [tiempo, setTiempo] = useState(0);
+  const [resultados, setResultados] = useState([]);
 
-  const handleQuantumChange = (event) => {
-    const value = parseFloat(event.target.value);
-    setQuantum(value);
+  const handleNumProcesosChange = (e) => {
+    const numProcesos = parseInt(e.target.value);
+    if (!isNaN(numProcesos) && numProcesos > 0) {
+      setNumProcesos(numProcesos);
+      setProcesos(
+        Array(numProcesos)
+          .fill()
+          .map((_, index) => ({
+            nombre: `P${index + 1}`,
+            tiempoLlegada: 0,
+            quantum: 0,
+            tiempoRestante: 0,
+          }))
+      );
+    }
   };
 
-  const handleProcessChange = (event, index) => {
-    const { value } = event.target;
-    const updatedProcesses = [...processes];
-    updatedProcesses[index] = {
-      ...updatedProcesses[index],
-      burstTime: parseInt(value),
-      remainingTime: parseInt(value),
-    };
-    setProcesses(updatedProcesses);
+  const handleProcesoChange = (index, field, value) => {
+    const nuevosProcesos = [...procesos];
+    nuevosProcesos[index] = { ...nuevosProcesos[index], [field]: value };
+    setProcesos(nuevosProcesos);
   };
 
-  const handleEntradaSelidas = (event) => {
-    const { value } = event.target;
-  };
+  const handleSimulacion = () => {
+    let tiempoActual = 0;
+    let tiemposRestantes = procesos.map((proceso) => parseInt(proceso.quantum));
+    let hayProcesosPendientes = true;
+    let resultadosSimulacion = [];
 
-  const addProcess = () => {
-    setProcesses((prevProcesses) => [
-      ...prevProcesses,
-      {
-        name: `Proceso ${prevProcesses.length + 1}`,
-        burstTime: 0,
-        remainingTime: 0,
-      },
-    ]);
-  };
+    while (hayProcesosPendientes) {
+      hayProcesosPendientes = false;
+      for (let i = 0; i < procesos.length; i++) {
+        if (tiemposRestantes[i] > 0) {
+          hayProcesosPendientes = true;
+          resultadosSimulacion.push({
+            proceso: procesos[i].nombre,
+            inicio: tiempoActual,
+            fin: tiempoActual + quantum,
+            espera: 0, // Aquí debería calcularse el tiempo de espera
+            retorno: 0, // Aquí debería calcularse el tiempo de retorno
+            intercambio: intercambio, // Aquí almacenamos el tiempo de intercambio
+            quantum: quantum, // Aquí almacenamos el tiempo de intercambio
+          });
+          tiempoActual += quantum;
+          tiemposRestantes[i] -= quantum;
+          if (tiemposRestantes[i] < 0) tiemposRestantes[i] = 0;
 
-  const runRoundRobin = () => {
-    setIsRunning(true); // Indicar que se está ejecutando el algoritmo
-    let processesCopy = [...processes];
-    let currentTime = 0;
-    let totalWaitingTime = 0;
-    let totalTurnaroundTime = 0;
-    let log = [];
-
-    const interval = setInterval(() => {
-      if (processesCopy.length === 0) {
-        // Detener el intervalo si no hay más procesos
-        clearInterval(interval);
-        setIsRunning(false); // Indicar que se ha detenido la ejecución
-        return;
-      }
-
-      const process = processesCopy[0]; // Obtener el próximo proceso a ejecutar
-      if (process.remainingTime > 0) {
-        const timeSlice = Math.min(quantum, process.remainingTime);
-        process.remainingTime -= timeSlice;
-        currentTime += timeSlice;
-        log.push({
-          process: process.name,
-          startTime: currentTime - timeSlice,
-          endTime: currentTime,
-          waitingTime: Math.max(currentTime - timeSlice - process.burstTime, 0),
-          turnaroundTime: currentTime - process.burstTime,
-        });
-
-        if (process.remainingTime === 0) {
-          totalWaitingTime += Math.max(
-            currentTime - process.burstTime - timeSlice,
-            0
-          );
-          totalTurnaroundTime += currentTime - process.burstTime;
-          processesCopy.shift(); // Eliminar el proceso ejecutado de la lista
+          tiempoActual += intercambio;
         }
       }
+    }
 
-      setExecutionLog(log.slice()); // Actualizar la tabla con el nuevo registro
-    }, 1000); // Intervalo de 1 segundo
+    setTiempo(tiempoActual);
+    setResultados(resultadosSimulacion);
   };
 
   const borrar = () => {
-    setExecutionLog([]);
-    setProcesses([]);
-    setQuantum("1");
-    setIsRunning(false);
+    setResultados([]);
+    setProcesos([]);
+    setQuantum(0);
+    setIntercambio(0);
+    setNumProcesos(0);
+    setTiempo(0);
   };
 
   return (
@@ -97,69 +82,82 @@ function App() {
       <div className="mainContainer">
         <div className="actions">
           <div className="input">
-            <label>Quantum</label>
+            <label>Número de procesos</label>
             <input
               type="number"
-              disabled={isRunning === true}
+              value={numProcesos}
+              onChange={handleNumProcesosChange}
+            />
+          </div>
+          <div className="input">
+            <label>Quantum global</label>
+            <input
+              type="number"
               value={quantum}
-              onChange={handleQuantumChange}
+              onChange={(e) => setQuantum(parseInt(e.target.value))}
+            />
+          </div>
+          <div className="input">
+            <label>Intercambio</label>
+            <input
+              type="number"
+              value={intercambio}
+              onChange={(e) => setIntercambio(parseInt(e.target.value))}
             />
           </div>
           <div className="buttons">
-            <button
-              className="round"
-              onClick={runRoundRobin}
-              disabled={isRunning === true}
-            >
+            <button className="round" onClick={handleSimulacion}>
               <CiPlay1 /> <span>Ejecutar Round Robin</span>
             </button>
-            <button
-              className="add"
-              onClick={addProcess}
-              disabled={isRunning === true}
-            >
+            {/* <button className="add" onClick={addProcess}>
               <IoIosAdd /> <span>Agregar Proceso</span>
-            </button>
+            </button> */}
             <button className="delete" onClick={borrar}>
               <CiTrash />
               <span>Borrar</span>
             </button>
           </div>
         </div>
-        {processes.length > 0 && (
+        {procesos.length > 0 && (
           <div className="form">
             <>
-              <>
-                <h3 className="headerForm">Introducir Procesos</h3>
-              </>
-              <>
-                <form>
-                  {processes.map((process, index) => (
-                    <div className="process" key={index}>
-                      <p>Proceso {index + 1} </p>
+              <h3 className="headerForm">Introducir Procesos</h3>
+              <form>
+                {procesos.map((proceso, index) => (
+                  <div className="process" key={index}>
+                    <p>Proceso {index + 1} </p>
 
-                      <div className="input">
-                        <label>Tiempo de Ráfaga de CPU</label>
-                        <input
-                          disabled={isRunning === true}
-                          type="number"
-                          value={process.burstTime || ""}
-                          onChange={(e) => handleProcessChange(e, index)}
-                        />
-                      </div>
-                      <div className="input">
-                        <label>Entradas/Salidas</label>
-                        <input
-                          disabled={isRunning === true}
-                          type="number"
-                          value={process.burstTime || ""}
-                          onChange={(e) => handleProcessChange(e, index)}
-                        />
-                      </div>
+                    <div className="input">
+                      <label>Tiempo de Ráfaga de CPU</label>
+                      <input
+                        type="number"
+                        value={proceso.quantum}
+                        onChange={(e) =>
+                          handleProcesoChange(
+                            index,
+                            "quantum",
+                            parseInt(e.target.value)
+                          )
+                        }
+                      />
                     </div>
-                  ))}
-                </form>
-              </>
+                    <div className="input">
+                      <label>Tiempo de llegada</label>
+                      <input
+                        type="number"
+                        value={proceso.tiempoLlegada}
+                        onChange={(e) =>
+                          handleProcesoChange(
+                            index,
+                            "tiempoLlegada",
+                            parseInt(e.target.value)
+                          )
+                        }
+                      />
+                    </div>
+                  </div>
+                ))}
+              </form>
             </>
           </div>
         )}
@@ -170,6 +168,7 @@ function App() {
               <thead>
                 <tr>
                   <th>Proceso</th>
+                  <th>Intercambio</th>
                   <th>Tiempo de Inicio</th>
                   <th>Tiempo de Finalización</th>
                   <th>Tiempo de Espera</th>
@@ -177,51 +176,69 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {executionLog.map((log, index) => (
-                  <tr key={index}>
-                    <td>{log.process}</td>
-                    <td>{log.startTime}</td>
-                    <td>{log.endTime}</td>
-                    <td>{log.waitingTime}</td>
-                    <td>{log.turnaroundTime}</td>
-                  </tr>
+                {resultados.map((registro, index) => (
+                  <React.Fragment key={index}>
+                    <tr>
+                      <td>{registro.proceso}</td>
+                      <td></td>
+                      <td>{registro.inicio}</td>
+                      <td>{registro.fin}</td>
+                      <td>{registro.espera}</td>
+                      <td>{registro.retorno}</td>
+                    </tr>
+                    {index !== resultados.length - 1 && (
+                      <tr>
+                        <td>Intercambio </td>
+                        <td colSpan="1">{registro.intercambio}</td>{" "}
+                        <td colSpan="4"></td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="tiempos">
-            <div>
-              <p>Tiempo de espera promedio:</p>
-              <p className="promedio">
-                {executionLog.length > 0 &&
-                  executionLog.reduce(
-                    (acc, curr) => acc + curr.waitingTime,
-                    0
-                  ) / executionLog.length}
-              </p>
-            </div>
-            <div>
-              <p>Tiempo de retorno promedio:</p>
-              <p className="promedio">
-                {executionLog.length > 0 &&
-                  executionLog.reduce(
-                    (acc, curr) => acc + curr.turnaroundTime,
-                    0
-                  ) / executionLog.length}
-              </p>
-            </div>
-          </div>
         </div>
-
+        {/* <div className="tiempos">
+        <div>
+          <p>Tiempo de espera promedio:</p>
+          <p className="promedio">
+            {executionLog.length > 0 &&
+              executionLog.reduce((acc, curr) => acc + curr.waitingTime, 0) /
+                executionLog.length}
+          </p>
+        </div>
+        <div>
+          <p>Tiempo de retorno promedio:</p>
+          <p className="promedio">
+            {executionLog.length > 0 &&
+              executionLog.reduce((acc, curr) => acc + curr.turnaroundTime, 0) /
+                executionLog.length}
+          </p>
+        </div>
+      </div> */}
         <div className="containerGant">
           <h3>Diagrama de Gantt</h3>
           <div className="gant">
-            <div>
-              <p className="asigno">10</p>
-              <p>p1</p>
-              <p className="inicio">0</p>
-              <p className="fin">10</p>
-            </div>
+            {resultados.map((registro, index) => (
+              <>
+                <div key={index} className="barra">
+                  <p className="asigno">{registro.quantum}</p>
+                  <p>{registro.proceso}</p>
+                  <p className="inicio">{registro.inicio}</p>
+                  <p className="fin">{registro.fin}</p>
+                  {/* Puedes agregar más detalles según sea necesario */}
+                </div>
+                {index !== resultados.length - 1 && ( // Verifica si no es el último elemento
+                  <div key={`${index}-intercambio`} className="barra">
+                    <p className="asigno"> {registro.intercambio}</p>
+                    <p>I</p>
+                    <p className="inicio"></p>
+                    <p className="fin"></p>
+                  </div>
+                )}
+              </>
+            ))}
           </div>
         </div>
       </div>
