@@ -151,11 +151,35 @@
       gap: 5px;
     }
 
+    & .buttonES {
+      width: 100%;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+
+      & span {
+        color: #000000ac;
+        font-size: 0.8rem;
+      }
+    }
+
+    & .entradaSalida {
+      margin-top: 15px;
+
+      border: 1px solid #d9d9d9;
+      padding: 15px 5px 5px;
+      & input {
+        width: 97%;
+      }
+    }
+
     & .process {
       padding: 5px;
-      width: 260px;
-      overflow: hidden;
+      width: 280px;
+      overflow: auto;
       border: 1px solid #00000056;
+      max-height: 400px;
 
       & p {
         font-size: 14px;
@@ -305,7 +329,7 @@
       flex-wrap: wrap;
       padding: 10px;
       margin-top: 30px;
-      
+
       & div {
         position: relative;
         margin-bottom: 50px;
@@ -338,7 +362,7 @@
           right: -10px;
         }
 
-        &:nth-of-type(even){
+        &:nth-of-type(even) {
           background-color: #d1d1d1;
         }
       }

@@ -23,6 +23,7 @@ function App() {
             tiempoLlegada: 0,
             quantum: 0,
             tiempoRestante: 0,
+            entradasSalidas: [],
           }))
       );
     }
@@ -31,6 +32,21 @@ function App() {
   const handleProcesoChange = (index, field, value) => {
     const nuevosProcesos = [...procesos];
     nuevosProcesos[index] = { ...nuevosProcesos[index], [field]: value };
+    setProcesos(nuevosProcesos);
+  };
+
+  const handleEntradaSalidaChange = (index, field, value, esIndex) => {
+    const nuevosProcesos = [...procesos];
+    nuevosProcesos[index].entradasSalidas[esIndex] = {
+      ...nuevosProcesos[index].entradasSalidas[esIndex],
+      [field]: value,
+    };
+    setProcesos(nuevosProcesos);
+  };
+
+  const addEntradaSalida = (index) => {
+    const nuevosProcesos = [...procesos];
+    nuevosProcesos[index].entradasSalidas.push({ tiempo: 0, quantum: quantum });
     setProcesos(nuevosProcesos);
   };
 
@@ -76,6 +92,8 @@ function App() {
     setTiempo(0);
   };
 
+  console.log(procesos);
+
   return (
     <div className="main">
       <h2 className="header">Simulador Round Robin</h2>
@@ -90,19 +108,25 @@ function App() {
             />
           </div>
           <div className="input">
-            <label>Quantum global</label>
+            <label>Quantum {`(Q); (1Q es = 100ms)`}</label>
             <input
               type="number"
               value={quantum}
-              onChange={(e) => setQuantum(parseInt(e.target.value))}
+              onChange={(e) =>
+                setQuantum(e.target.value > 0 ? parseInt(e.target.value) : 0)
+              }
             />
           </div>
           <div className="input">
-            <label>Intercambio</label>
+            <label>Intercambio {`(I); (1I es = 100ms)`}</label>
             <input
               type="number"
               value={intercambio}
-              onChange={(e) => setIntercambio(parseInt(e.target.value))}
+              onChange={(e) =>
+                setIntercambio(
+                  e.target.value > 0 ? parseInt(e.target.value) : 0
+                )
+              }
             />
           </div>
           <div className="buttons">
@@ -126,18 +150,19 @@ function App() {
                 {procesos.map((proceso, index) => (
                   <div className="process" key={index}>
                     <p>Proceso {index + 1} </p>
-
                     <div className="input">
                       <label>Tiempo de Ráfaga de CPU</label>
                       <input
                         type="number"
                         value={proceso.quantum}
                         onChange={(e) =>
-                          handleProcesoChange(
-                            index,
-                            "quantum",
-                            parseInt(e.target.value)
-                          )
+                          e.target.value > 0
+                            ? handleProcesoChange(
+                                index,
+                                "quantum",
+                                parseInt(e.target.value)
+                              )
+                            : 0
                         }
                       />
                     </div>
@@ -147,14 +172,75 @@ function App() {
                         type="number"
                         value={proceso.tiempoLlegada}
                         onChange={(e) =>
-                          handleProcesoChange(
-                            index,
-                            "tiempoLlegada",
-                            parseInt(e.target.value)
-                          )
+                          e.target.value > 0
+                            ? handleProcesoChange(
+                                index,
+                                "tiempoLlegada",
+                                parseInt(e.target.value)
+                              )
+                            : 0
                         }
                       />
                     </div>
+
+                    <div className="buttonES">
+                      <button
+                        type="button"
+                        onClick={() => addEntradaSalida(index)}
+                        className="round"
+                      >
+                        Añadir Entrada/Salida
+                      </button>
+                      {proceso.entradasSalidas.length > 0 && (
+                        <span>E/S: {proceso.entradasSalidas.length}</span>
+                      )}
+                    </div>
+                    {proceso.entradasSalidas.map((es, esIndex) => (
+                      <div key={esIndex} className="entradaSalida">
+                        <div className="input">
+                          <label>Tiempo de Entrada/Salida</label>
+                          <input
+                            type="number"
+                            value={es.tiempo}
+                            onChange={(e) =>
+                              e.target.value > 0
+                                ? handleEntradaSalidaChange(
+                                    index,
+                                    "tiempo",
+                                    parseInt(e.target.value),
+                                    esIndex
+                                  )
+                                : 0
+                            }
+                          />
+                        </div>
+                        {/* <div className="input">
+                          <label>Quantum de Entrada/Salida</label>
+                          <input
+                            type="number"
+                            value={es.quantum}
+                            onChange={(e) =>
+                              e.target.value > 0
+                                ? handleEntradaSalidaChange(
+                                    index,
+                                    "quantum",
+                                    parseInt(e.target.value),
+                                    esIndex
+                                  )
+                                : 0
+                            }
+                          />
+                        </div> */}
+                        {/* <div>
+                          <button
+                            className="delete"
+                            onClick={() => quitarEntradaSalida(index, esIndex)}
+                          >
+                            Quitar
+                          </button>
+                        </div> */}
+                      </div>
+                    ))}
                   </div>
                 ))}
               </form>
