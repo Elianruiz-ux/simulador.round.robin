@@ -10,6 +10,9 @@ function App() {
   const [intercambio, setIntercambio] = useState(0);
   const [tiempo, setTiempo] = useState(0);
   const [resultados, setResultados] = useState([]);
+  const [resultadosPromediosProceso, setResultadosPromediosProceso] = useState(
+    []
+  );
 
   const handleNumProcesosChange = (e) => {
     const numProcesos = parseInt(e.target.value);
@@ -24,7 +27,7 @@ function App() {
             quantum: 0,
             tiempoRestante: 0,
             entradasSalidas: [],
-            nuevoTiempoLLegada: 0
+            primeraVez: false,
           }))
       );
     }
@@ -52,68 +55,109 @@ function App() {
   };
 
   const handleSimulacion = () => {
-    let procesosOrdenados = JSON.parse(JSON.stringify(procesos)).sort((a, b) => a.tiempoLlegada - b.tiempoLlegada);
+    setResultados([]);
+    setTiempo(0);
+    let procesosOrdenados = JSON.parse(JSON.stringify(procesos)).sort(
+      (a, b) => a.tiempoLlegada - b.tiempoLlegada
+    );
 
     let tiempoActual = 0;
-    let tiemposRestantes = procesos.map((proceso) => parseInt(proceso.quantum));
+    let tiemposRestantes = procesosOrdenados.map((proceso) =>
+      parseInt(proceso.quantum)
+    );
     let hayProcesosPendientes = true;
     let resultadosSimulacion = [];
+    let resultadosTiempos = [];
 
     while (hayProcesosPendientes) {
       hayProcesosPendientes = false;
-  
+
       for (let i = 0; i < procesosOrdenados.length; i++) {
         let proceso = procesosOrdenados[i];
-  
+
         if (tiemposRestantes[i] > 0 && proceso.tiempoLlegada <= tiempoActual) {
           hayProcesosPendientes = true;
-  
+
           let tiempoEjecutado = Math.min(quantum, tiemposRestantes[i]);
           tiempoActual += tiempoEjecutado;
           tiemposRestantes[i] -= tiempoEjecutado;
           tiempoActual += intercambio;
-  
+
+          const inicio = tiempoActual - tiempoEjecutado - intercambio;
+          const fin = tiempoActual - intercambio;
+
           resultadosSimulacion.push({
             proceso: proceso.nombre,
-            inicio: tiempoActual - tiempoEjecutado - intercambio,
-            fin: tiempoActual - intercambio,
-            espera: 0, // Aquí debería calcularse el tiempo de espera
+            inicio: inicio,
+            fin: fin,
+            espera: inicio - proceso.tiempoLlegada, // Aquí debería calcularse el tiempo de espera
             retorno: 0, // Aquí debería calcularse el tiempo de retorno
             intercambio: intercambio,
             quantum: quantum,
           });
-  
+          if (proceso.primeraVez === false) {
+            proceso.primeraVez = true;
+            resultadosTiempos.push({
+              proceso: proceso.nombre,
+              espera: inicio - proceso.tiempoLlegada,
+              retorno: 0,
+            });
+          }
+
           console.log("PROCESO " + proceso.nombre);
           console.log("quantum: " + quantum);
           console.log("Tiempo " + tiempoActual);
-          console.log("Tiempo restante de " + proceso.nombre + ": " + tiemposRestantes[i]);
+          console.log(
+            "Tiempo restante de " + proceso.nombre + ": " + tiemposRestantes[i]
+          );
           console.log("Tiempo después de intercambio " + tiempoActual);
-  
+
           // Validación de entradas y salidas
           if (tiemposRestantes[i] === 0) {
             if (proceso.entradasSalidas.length > 0) {
               let entradaSalida = proceso.entradasSalidas.shift();
-              let aux = tiempoActual + entradaSalida.tiempo -intercambio;
+              let aux = tiempoActual + entradaSalida.tiempo - intercambio;
               tiemposRestantes[i] = entradaSalida.quantum;
               proceso.tiempoLlegada = aux; // Actualizar tiempo de llegada
-              procesosOrdenados.sort((a, b) => a.tiempoLlegada - b.tiempoLlegada); // Reordenar procesos por tiempo de llegada
-         
-              console.log("El proceso " + proceso.nombre + " tiene una entrada/salida. Nuevo tiempo de llegada: " + aux + ", nuevo quantum: " + tiemposRestantes[i]);
+              procesosOrdenados.sort(
+                (a, b) => a.tiempoLlegada - b.tiempoLlegada
+              ); // Reordenar procesos por tiempo de llegada
+
+              console.log(
+                "El proceso " +
+                  proceso.nombre +
+                  " tiene una entrada/salida. Nuevo tiempo de llegada: " +
+                  aux +
+                  ", nuevo quantum: " +
+                  tiemposRestantes[i]
+              );
             } else {
               console.log("El proceso " + proceso.nombre + " ha terminado.");
             }
           }
+
+          if (tiemposRestantes[i] === 0) {
+            console.log(i);
+            const procesoEspecifico = JSON.parse(JSON.stringify(procesos));
+            console.log({ procesoEspecifico });
+            const finProceso = tiempoActual - intercambio;
+            [...resultadosTiempos].push({
+              proceso: proceso.nombre,
+              retorno: 1,
+            });
+          }
         }
-  
       }
     }
 
     setTiempo(tiempoActual);
+    setResultadosPromediosProceso(resultadosTiempos);
     setResultados(resultadosSimulacion);
   };
 
   const borrar = () => {
     setResultados([]);
+    setResultadosPromediosProceso([]);
     setProcesos([]);
     setQuantum(0);
     setIntercambio(0);
@@ -142,7 +186,7 @@ function App() {
               type="number"
               value={quantum}
               onChange={(e) =>
-                setQuantum(e.target.value > 0 ? parseInt(e.target.value) : 0)
+                setQuantum(e.target.value >= 0 ? parseInt(e.target.value) : 0)
               }
             />
           </div>
@@ -153,13 +197,17 @@ function App() {
               value={intercambio}
               onChange={(e) =>
                 setIntercambio(
-                  e.target.value > 0 ? parseInt(e.target.value) : 0
+                  e.target.value >= 0 ? parseInt(e.target.value) : 0
                 )
               }
             />
           </div>
           <div className="buttons">
-            <button className="round" onClick={handleSimulacion}>
+            <button
+              className="round"
+              onClick={handleSimulacion}
+              disabled={numProcesos === 0 || quantum === 0}
+            >
               <CiPlay1 /> <span>Ejecutar Round Robin</span>
             </button>
             {/* <button className="add" onClick={addProcess}>
@@ -185,7 +233,7 @@ function App() {
                         type="number"
                         value={proceso.quantum}
                         onChange={(e) =>
-                          e.target.value > 0
+                          e.target.value >= 0
                             ? handleProcesoChange(
                                 index,
                                 "quantum",
@@ -201,7 +249,7 @@ function App() {
                         type="number"
                         value={proceso.tiempoLlegada}
                         onChange={(e) =>
-                          e.target.value > 0
+                          e.target.value >= 0
                             ? handleProcesoChange(
                                 index,
                                 "tiempoLlegada",
@@ -232,7 +280,7 @@ function App() {
                             type="number"
                             value={es.tiempo}
                             onChange={(e) =>
-                              e.target.value > 0
+                              e.target.value >= 0
                                 ? handleEntradaSalidaChange(
                                     index,
                                     "tiempo",
@@ -249,7 +297,7 @@ function App() {
                             type="number"
                             value={es.quantum}
                             onChange={(e) =>
-                              e.target.value > 0
+                              e.target.value >= 0
                                 ? handleEntradaSalidaChange(
                                     index,
                                     "quantum",
@@ -286,8 +334,8 @@ function App() {
                   <th>Intercambio</th>
                   <th>Tiempo de Inicio</th>
                   <th>Tiempo de Finalización</th>
-                  <th>Tiempo de Espera</th>
-                  <th>Tiempo de Retorno</th>
+                  {/* <th>Tiempo de Espera</th>
+                  <th>Tiempo de vuelta</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -298,14 +346,14 @@ function App() {
                       <td></td>
                       <td>{registro.inicio}</td>
                       <td>{registro.fin}</td>
-                      <td>{registro.espera}</td>
-                      <td>{registro.retorno}</td>
+                      {/* <td>{registro.espera}</td>
+                      <td>{registro.retorno}</td> */}
                     </tr>
                     {index !== resultados.length - 1 && (
                       <tr>
                         <td>Intercambio </td>
                         <td colSpan="1">{registro.intercambio}</td>{" "}
-                        <td colSpan="4"></td>
+                        <td colSpan="2"></td>
                       </tr>
                     )}
                   </React.Fragment>
@@ -314,24 +362,52 @@ function App() {
             </table>
           </div>
         </div>
-        {/* <div className="tiempos">
-        <div>
-          <p>Tiempo de espera promedio:</p>
-          <p className="promedio">
-            {executionLog.length > 0 &&
-              executionLog.reduce((acc, curr) => acc + curr.waitingTime, 0) /
-                executionLog.length}
-          </p>
+        <div className="tableContainer">
+          <h3>Registro de tiempos</h3>
+          <div className="table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Proceso</th>
+                  <th>Tiempo de Espera</th>
+                  <th>Tiempo de Vuelta</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resultadosPromediosProceso.map((registro, index) => (
+                  <tr key={index}>
+                    <td>{registro.proceso}</td>
+                    <td>{registro.espera}</td>
+                    <td>{registro.retorno}</td>
+                  </tr>
+                ))}
+
+                <tr>
+                  <td>Tiempo de espera promedio: </td>
+                  <td colSpan="1">
+                    {resultadosPromediosProceso.length > 0 &&
+                      resultadosPromediosProceso.reduce(
+                        (acc, curr) => acc + curr.espera,
+                        0
+                      ) / resultadosPromediosProceso.length}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Tiempo de vuelta promedio: </td>
+                  <td></td>
+                  <td>
+                    {resultadosPromediosProceso.length > 0 &&
+                      resultadosPromediosProceso.reduce(
+                        (acc, curr) => acc + curr.retorno,
+                        0
+                      ) / resultadosPromediosProceso.length}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div>
-          <p>Tiempo de retorno promedio:</p>
-          <p className="promedio">
-            {executionLog.length > 0 &&
-              executionLog.reduce((acc, curr) => acc + curr.turnaroundTime, 0) /
-                executionLog.length}
-          </p>
-        </div>
-      </div> */}
+
         <div className="containerGant">
           <h3>Diagrama de Gantt</h3>
           <div className="gant">

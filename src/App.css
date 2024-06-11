@@ -32,6 +32,10 @@
       color: white;
       border-color: white;
     }
+
+    &:disabled {
+      cursor: no-drop;
+    }
   }
 
   & .delete {
