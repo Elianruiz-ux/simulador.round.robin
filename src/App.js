@@ -51,18 +51,24 @@ function App() {
   };
 
   const handleSimulacion = () => {
+    setResultados([]);
+    const procesosOrdenados = [...procesos].sort(
+      (a, b) => a.tiempoLlegada - b.tiempoLlegada
+    );
     let tiempoActual = 0;
-    let tiemposRestantes = procesos.map((proceso) => parseInt(proceso.quantum));
+    let tiemposRestantes = procesosOrdenados.map((proceso) =>
+      parseInt(proceso.quantum)
+    );
     let hayProcesosPendientes = true;
     let resultadosSimulacion = [];
 
     while (hayProcesosPendientes) {
       hayProcesosPendientes = false;
-      for (let i = 0; i < procesos.length; i++) {
+      for (let i = 0; i < procesosOrdenados.length; i++) {
         if (tiemposRestantes[i] > 0) {
           hayProcesosPendientes = true;
           resultadosSimulacion.push({
-            proceso: procesos[i].nombre,
+            proceso: procesosOrdenados[i].nombre,
             inicio: tiempoActual,
             fin: tiempoActual + quantum,
             espera: 0, // Aquí debería calcularse el tiempo de espera
@@ -73,11 +79,15 @@ function App() {
           tiempoActual += quantum;
           tiemposRestantes[i] -= quantum;
           if (tiemposRestantes[i] < 0) tiemposRestantes[i] = 0;
-
+          // console.log('before:', resultadosSimulacion);
+          // resultadosSimulacion.sort((a, b) => a.tiempoLlegada < b.tiempoLlegada);
+          // console.log('after:', resultadosSimulacion)
           tiempoActual += intercambio;
         }
       }
     }
+
+    // resultadosSimulacion.sort((a, b) => a.)
 
     setTiempo(tiempoActual);
     setResultados(resultadosSimulacion);
