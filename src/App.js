@@ -55,16 +55,17 @@ function App() {
     let procesosOrdenados = JSON.parse(JSON.stringify(procesos)).sort((a, b) => a.tiempoLlegada - b.tiempoLlegada);
 
     let tiempoActual = 0;
-    let tiemposRestantes = procesosOrdenados.map((proceso) =>
-      parseInt(proceso.quantum)
-    );
+    let tiemposRestantes = procesos.map((proceso) => parseInt(proceso.quantum));
     let hayProcesosPendientes = true;
     let resultadosSimulacion = [];
 
     while (hayProcesosPendientes) {
       hayProcesosPendientes = false;
-      for (let i = 0; i < procesos.length; i++) {
-        if (tiemposRestantes[i] > 0) {
+  
+      for (let i = 0; i < procesosOrdenados.length; i++) {
+        let proceso = procesosOrdenados[i];
+  
+        if (tiemposRestantes[i] > 0 && proceso.tiempoLlegada <= tiempoActual) {
           hayProcesosPendientes = true;
   
           let tiempoEjecutado = Math.min(quantum, tiemposRestantes[i]);
@@ -92,7 +93,7 @@ function App() {
           if (tiemposRestantes[i] === 0) {
             if (proceso.entradasSalidas.length > 0) {
               let entradaSalida = proceso.entradasSalidas.shift();
-              let aux = tiempoActual + entradaSalida.tiempo - intercambio;
+              let aux = tiempoActual + entradaSalida.tiempo -intercambio;
               tiemposRestantes[i] = entradaSalida.quantum;
               proceso.tiempoLlegada = aux; // Actualizar tiempo de llegada
               procesosOrdenados.sort((a, b) => a.tiempoLlegada - b.tiempoLlegada); // Reordenar procesos por tiempo de llegada
@@ -106,8 +107,6 @@ function App() {
   
       }
     }
-
-    // resultadosSimulacion.sort((a, b) => a.)
 
     setTiempo(tiempoActual);
     setResultados(resultadosSimulacion);
