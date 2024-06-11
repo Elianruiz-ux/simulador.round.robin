@@ -46,7 +46,7 @@ function App() {
 
   const addEntradaSalida = (index) => {
     const nuevosProcesos = [...procesos];
-    nuevosProcesos[index].entradasSalidas.push({ tiempo: 0, quantum: quantum });
+    nuevosProcesos[index].entradasSalidas.push({ tiempo: 0, quantum: 0 });
     setProcesos(nuevosProcesos);
   };
 
@@ -108,7 +108,7 @@ function App() {
             />
           </div>
           <div className="input">
-            <label>Quantum {`(Q); (1Q es = 100ms)`}</label>
+            <label>Quantum {`(Milisegundos)`}</label>
             <input
               type="number"
               value={quantum}
@@ -118,7 +118,7 @@ function App() {
             />
           </div>
           <div className="input">
-            <label>Intercambio {`(I); (1I es = 100ms)`}</label>
+            <label>Intercambio {`(Milisegundos)`}</label>
             <input
               type="number"
               value={intercambio}
@@ -214,7 +214,7 @@ function App() {
                             }
                           />
                         </div>
-                        {/* <div className="input">
+                        <div className="input">
                           <label>Quantum de Entrada/Salida</label>
                           <input
                             type="number"
@@ -230,7 +230,7 @@ function App() {
                                 : 0
                             }
                           />
-                        </div> */}
+                        </div>
                         {/* <div>
                           <button
                             className="delete"
