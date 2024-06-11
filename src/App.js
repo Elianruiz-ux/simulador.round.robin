@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
 import { CiPlay1, CiTrash } from "react-icons/ci";
-import { IoIosAdd } from "react-icons/io";
 
 function App() {
   const [numProcesos, setNumProcesos] = useState(0);
@@ -67,11 +66,11 @@ function App() {
     );
     let hayProcesosPendientes = true;
     let resultadosSimulacion = [];
-    let resultadosTiempos = [];
+    let resultadosTiempoEspera = [];
+    let resultadosTiempoVuelta = [];
 
     while (hayProcesosPendientes) {
       hayProcesosPendientes = false;
-
       for (let i = 0; i < procesosOrdenados.length; i++) {
         let proceso = procesosOrdenados[i];
 
@@ -95,18 +94,39 @@ function App() {
             intercambio: intercambio,
             quantum: quantum,
           });
+
+          const index = resultadosTiempoVuelta.findIndex(
+            (pr) => pr.proceso === proceso.nombre
+          );
+          if (index !== -1) {
+            resultadosTiempoVuelta[index] = {
+              ...resultadosTiempoVuelta[index],
+              salio: fin,
+            };
+          } else {
+            const totaltiempo = proceso.entradasSalidas.reduce(
+              (accum, current) => {
+                return accum + current.tiempo;
+              },
+              0
+            );
+            resultadosTiempoVuelta.push({
+              proceso: proceso.nombre,
+              llego: proceso.tiempoLlegada,
+              total_E_S: totaltiempo,
+              salio: fin,
+            });
+          }
+
           if (proceso.primeraVez === false) {
             proceso.primeraVez = true;
-            resultadosTiempos.push({
+            resultadosTiempoEspera.push({
               proceso: proceso.nombre,
               espera: inicio - proceso.tiempoLlegada,
               retorno: 0,
             });
           }
 
-          console.log("PROCESO " + proceso.nombre);
-          console.log("quantum: " + quantum);
-          console.log("Tiempo " + tiempoActual);
           console.log(
             "Tiempo restante de " + proceso.nombre + ": " + tiemposRestantes[i]
           );
@@ -135,23 +155,30 @@ function App() {
               console.log("El proceso " + proceso.nombre + " ha terminado.");
             }
           }
-
+        } else {
           if (tiemposRestantes[i] === 0) {
-            console.log(i);
-            const procesoEspecifico = JSON.parse(JSON.stringify(procesos));
-            console.log({ procesoEspecifico });
-            const finProceso = tiempoActual - intercambio;
-            [...resultadosTiempos].push({
-              proceso: proceso.nombre,
-              retorno: 1,
+            resultadosTiempoVuelta.forEach((result) => {
+              const index = resultadosTiempoEspera.findIndex(
+                (pr) => pr.proceso === result.proceso
+              );
+
+              if (index !== -1) {
+                resultadosTiempoEspera[index] = {
+                  ...resultadosTiempoEspera[index],
+                  // Calculo Tiempo de Vuelta
+                  tVuelta: result.salio - result.total_E_S - result.llego,
+                };
+              }
             });
           }
         }
       }
     }
 
+    console.log("Resultados Tiempo Espera:", resultadosTiempoEspera);
+
     setTiempo(tiempoActual);
-    setResultadosPromediosProceso(resultadosTiempos);
+    setResultadosPromediosProceso(resultadosTiempoEspera);
     setResultados(resultadosSimulacion);
   };
 
@@ -164,8 +191,6 @@ function App() {
     setNumProcesos(0);
     setTiempo(0);
   };
-
-  console.log(procesos);
 
   return (
     <div className="main">
@@ -378,7 +403,7 @@ function App() {
                   <tr key={index}>
                     <td>{registro.proceso}</td>
                     <td>{registro.espera}</td>
-                    <td>{registro.retorno}</td>
+                    <td>{registro.tVuelta}</td>
                   </tr>
                 ))}
 
@@ -398,7 +423,7 @@ function App() {
                   <td>
                     {resultadosPromediosProceso.length > 0 &&
                       resultadosPromediosProceso.reduce(
-                        (acc, curr) => acc + curr.retorno,
+                        (acc, curr) => acc + curr.tVuelta,
                         0
                       ) / resultadosPromediosProceso.length}
                   </td>
