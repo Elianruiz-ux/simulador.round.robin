@@ -24,6 +24,7 @@ function App() {
             quantum: 0,
             tiempoRestante: 0,
             entradasSalidas: [],
+            nuevoTiempoLLegada: 0
           }))
       );
     }
@@ -51,6 +52,8 @@ function App() {
   };
 
   const handleSimulacion = () => {
+    let procesosOrdenados = JSON.parse(JSON.stringify(procesos)).sort((a, b) => a.tiempoLlegada - b.tiempoLlegada);
+
     let tiempoActual = 0;
     let tiemposRestantes = procesos.map((proceso) => parseInt(proceso.quantum));
     let hayProcesosPendientes = true;
@@ -58,24 +61,50 @@ function App() {
 
     while (hayProcesosPendientes) {
       hayProcesosPendientes = false;
-      for (let i = 0; i < procesos.length; i++) {
-        if (tiemposRestantes[i] > 0) {
+  
+      for (let i = 0; i < procesosOrdenados.length; i++) {
+        let proceso = procesosOrdenados[i];
+  
+        if (tiemposRestantes[i] > 0 && proceso.tiempoLlegada <= tiempoActual) {
           hayProcesosPendientes = true;
+  
+          let tiempoEjecutado = Math.min(quantum, tiemposRestantes[i]);
+          tiempoActual += tiempoEjecutado;
+          tiemposRestantes[i] -= tiempoEjecutado;
+          tiempoActual += intercambio;
+  
           resultadosSimulacion.push({
-            proceso: procesos[i].nombre,
-            inicio: tiempoActual,
-            fin: tiempoActual + quantum,
+            proceso: proceso.nombre,
+            inicio: tiempoActual - tiempoEjecutado - intercambio,
+            fin: tiempoActual - intercambio,
             espera: 0, // Aquí debería calcularse el tiempo de espera
             retorno: 0, // Aquí debería calcularse el tiempo de retorno
-            intercambio: intercambio, // Aquí almacenamos el tiempo de intercambio
-            quantum: quantum, // Aquí almacenamos el tiempo de intercambio
+            intercambio: intercambio,
+            quantum: quantum,
           });
-          tiempoActual += quantum;
-          tiemposRestantes[i] -= quantum;
-          if (tiemposRestantes[i] < 0) tiemposRestantes[i] = 0;
-
-          tiempoActual += intercambio;
+  
+          console.log("PROCESO " + proceso.nombre);
+          console.log("quantum: " + quantum);
+          console.log("Tiempo " + tiempoActual);
+          console.log("Tiempo restante de " + proceso.nombre + ": " + tiemposRestantes[i]);
+          console.log("Tiempo después de intercambio " + tiempoActual);
+  
+          // Validación de entradas y salidas
+          if (tiemposRestantes[i] === 0) {
+            if (proceso.entradasSalidas.length > 0) {
+              let entradaSalida = proceso.entradasSalidas.shift();
+              let aux = tiempoActual + entradaSalida.tiempo - intercambio;
+              tiemposRestantes[i] = entradaSalida.quantum;
+              proceso.tiempoLlegada = aux; // Actualizar tiempo de llegada
+              procesosOrdenados.sort((a, b) => a.tiempoLlegada - b.tiempoLlegada); // Reordenar procesos por tiempo de llegada
+         
+              console.log("El proceso " + proceso.nombre + " tiene una entrada/salida. Nuevo tiempo de llegada: " + aux + ", nuevo quantum: " + tiemposRestantes[i]);
+            } else {
+              console.log("El proceso " + proceso.nombre + " ha terminado.");
+            }
+          }
         }
+  
       }
     }
 
