@@ -139,9 +139,9 @@ function App() {
               let aux = tiempoActual + entradaSalida.tiempo - intercambio;
               tiemposRestantes[i] = entradaSalida.quantum;
               proceso.tiempoLlegada = aux; // Actualizar tiempo de llegada
-              procesosOrdenados.sort(
+             /* procesosOrdenados.sort(
                 (a, b) => a.tiempoLlegada - b.tiempoLlegada
-              ); // Reordenar procesos por tiempo de llegada
+              ); // Reordenar procesos por tiempo de llegada*/
 
               console.log(
                 "El proceso " +
