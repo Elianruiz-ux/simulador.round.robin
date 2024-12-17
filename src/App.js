@@ -317,7 +317,7 @@ function App() {
                           />
                         </div>
                         <div className="input">
-                          <label>Hola Valentina</label>
+                          <label>Hola Valentina aprende git</label>
                           <input
                             type="number"
                             value={es.quantum}
