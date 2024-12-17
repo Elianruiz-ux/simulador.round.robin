@@ -317,7 +317,7 @@ function App() {
                           />
                         </div>
                         <div className="input">
-                          <label>Quantum de Entrada/Salida</label>
+                          <label>Hola Valentina</label>
                           <input
                             type="number"
                             value={es.quantum}
